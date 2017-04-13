@@ -10,11 +10,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 /**
  * Created by ruancl@xkeshi.com on 2017/4/13.
  */
-@Document
 public class RouteConfig {
 
     @Id
-    private Long id;
+    private String id;
 
     @Field("email")
     @Indexed(unique = true)
@@ -38,11 +37,11 @@ public class RouteConfig {
       this.serviceName = serviceId;
     }
 
-  public Long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(String id) {
     this.id = id;
   }
 

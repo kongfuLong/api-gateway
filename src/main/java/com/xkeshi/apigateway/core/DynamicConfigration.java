@@ -5,8 +5,12 @@ import com.netflix.hystrix.HystrixCommandProperties;
 import com.netflix.hystrix.HystrixCommandProperties.Setter;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy;
+import com.xkeshi.apigateway.mongo.RouteConfig;
+import com.xkeshi.apigateway.mongo.RouteConfigRepository;
+import com.xkeshi.core.utils.CollectionUtils;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +26,31 @@ public class DynamicConfigration extends HystrixPropertiesStrategy {
   @Autowired
   private ZuulProperties zuulProperties;
 
+  @Autowired
+  private RouteConfigRepository routeConfigRepository;
+
+
   @PostConstruct
   private void init(){
     //载入自定义熔断配置策略
     HystrixPlugins.getInstance().registerPropertiesStrategy(this);
     //初始化路由策略配置
     Map<String,ZuulRoute> map = new HashMap<>();
-    map.put("client-rcl",new ZuulRoute("client-rcl","/a/*","client-rcl",null,true,null,new LinkedHashSet<>()));
-    map.put("client-rcl2",new ZuulRoute("client-rcl2","/b/*","client-rcl2",null,true,null,new LinkedHashSet<>()));
-    zuulProperties.setRoutes(map);
-
+    List<RouteConfig> routeConfigs = routeConfigRepository.findAll();
+    if(CollectionUtils.isNotEmpty(routeConfigs)){
+      routeConfigs.forEach(config->map.put(
+          config.getServiceId(),
+          new ZuulRoute(config.getServiceId(),
+            config.getPathReg(),
+            config.getServiceName(),
+            config.getUrl(),
+            config.getStripPrefix(),
+            config.getRetryable(),
+            config.getSensitiveHeaders()
+          )
+      ));
+      zuulProperties.setRoutes(map);
+    }
   }
 
   /**

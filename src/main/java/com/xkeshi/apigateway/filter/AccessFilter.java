@@ -33,13 +33,8 @@ public class AccessFilter extends ZuulFilter {
   @Override
   public Object run() {
     System.out.println("请求发起之前");
-    //过滤逻辑
-    RequestContext ctx = RequestContext.getCurrentContext();
-    String reload = ctx.getRequest().getParameter("reload");
-    if("1".equals(reload)){
-      //hystrix 自定义配置重载
-      HystrixPropertiesFactory.reset();
-    }
+
+
     return null;
   }
 }
