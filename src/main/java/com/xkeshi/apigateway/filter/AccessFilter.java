@@ -1,5 +1,7 @@
 package com.xkeshi.apigateway.filter;
 
+import com.netflix.hystrix.strategy.HystrixPlugins;
+import com.netflix.hystrix.strategy.properties.HystrixPropertiesFactory;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import org.springframework.stereotype.Component;
@@ -22,7 +24,6 @@ public class AccessFilter extends ZuulFilter {
 
   @Override
   public boolean shouldFilter() {
-
     //判断此次请求是否需要过滤
     RequestContext ctx = RequestContext.getCurrentContext();
     Object isSuccess = ctx.get("isSuccess");
@@ -33,6 +34,12 @@ public class AccessFilter extends ZuulFilter {
   public Object run() {
     System.out.println("请求发起之前");
     //过滤逻辑
+    RequestContext ctx = RequestContext.getCurrentContext();
+    String reload = ctx.getRequest().getParameter("reload");
+    if("1".equals(reload)){
+      //hystrix 自定义配置重载
+      HystrixPropertiesFactory.reset();
+    }
     return null;
   }
 }

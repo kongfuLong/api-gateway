@@ -5,39 +5,16 @@ spring:
         enabled: true
   application:
     name: api-gateway
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/test
 
 server:
   port: 8091
 
-zuul:
-  routes:
-    a:
-      path: /a/*
-      serviceId: client-rcl
-    b:
-      path: /b/*
-      serviceId: client-rcl2
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8088/eureka/
+      defaultZone: http://localhost:8091/eureka/
 
-
-
-
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread: 1000
-        semaphore:
-          maxConcurrentRequests: 100
-    client-rcl2:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 3000
-          semaphore:
-            maxConcurrentRequests: 50

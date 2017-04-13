@@ -1,3 +1,4 @@
+/*
 package com.xkeshi.apigateway.filter;
 
 import com.alibaba.dubbo.config.ApplicationConfig;
@@ -10,10 +11,12 @@ import com.netflix.zuul.context.RequestContext;
 import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
+*/
 /**
  * Created by ruancl@xkeshi.com on 2017/4/6.
  * 除了http转发途径  其他途径都需要自己做熔断保护 限流措施
- */
+ *//*
+
 @Component
 public class RouteFilter extends ZuulFilter {
 
@@ -72,3 +75,4 @@ public class RouteFilter extends ZuulFilter {
     return null;
   }
 }
+*/
