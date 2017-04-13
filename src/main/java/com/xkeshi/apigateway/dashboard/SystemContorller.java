@@ -1,7 +1,10 @@
 package com.xkeshi.apigateway.dashboard;
 
-import com.netflix.hystrix.strategy.properties.HystrixPropertiesFactory;
+import com.xkeshi.apigateway.core.DynamicConfigration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -11,10 +14,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/system")
 public class SystemContorller {
 
-  @RequestMapping("/hystrix/reload")
+  @Autowired
+  private DynamicConfigration dynamicConfigration;
+
+  @RequestMapping(value = "/reload/hystrix",method = RequestMethod.GET)
   public String reloadHystrixConfigration(){
-      //hystrix 自定义配置重载
-      HystrixPropertiesFactory.reset();
-    return "reload hystrix configration";
+    dynamicConfigration.reloadHystrix();
+    return "reload all hystrix configration";
+  }
+
+  @RequestMapping(value = "/reload/route",method = RequestMethod.GET)
+  public String reloadRouteConfigration(){
+    dynamicConfigration.reloadRouteRule();
+    return "reload all route configration";
+  }
+
+  @RequestMapping(value = "/reload/route/{serviceId}",method = RequestMethod.GET)
+  public String reloadRouteConfigration(@PathVariable String serviceId){
+    dynamicConfigration.reloadRouteRule(serviceId);
+    return "reload route configration :"+serviceId;
   }
 }

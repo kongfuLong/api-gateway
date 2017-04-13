@@ -15,7 +15,6 @@ public class RouteConfig {
     @Id
     private String id;
 
-    @Field("email")
     @Indexed(unique = true)
     private String serviceId;
 

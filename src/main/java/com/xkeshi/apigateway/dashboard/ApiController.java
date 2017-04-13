@@ -2,6 +2,7 @@ package com.xkeshi.apigateway.dashboard;
 
 import com.alibaba.dubbo.common.json.JSON;
 import com.mongodb.WriteResult;
+import com.xkeshi.apigateway.core.DynamicConfigration;
 import com.xkeshi.apigateway.mongo.RouteConfig;
 import com.xkeshi.apigateway.mongo.RouteConfigRepository;
 import java.io.IOException;
@@ -30,22 +31,37 @@ public class ApiController {
   @Autowired
   private MongoTemplate mongoTemplate;
 
+  @Autowired
+  private DynamicConfigration dynamicConfigration;
 
   @RequestMapping(value = "/",method = RequestMethod.PUT)
   public String addApiRoute(@RequestParam("service_id")String serviceId,@RequestParam("path")String pathreg){
-    return routeConfigRepository.save(new RouteConfig(serviceId,pathreg)) == null ? "插入失败":"新增成功";
+    if(routeConfigRepository.save(new RouteConfig(serviceId,pathreg)) == null){
+      return "插入失败";
+    }else {
+      dynamicConfigration.reloadRouteRule(serviceId);
+      return "插入成功";
+    }
   }
 
   @RequestMapping(value = "/{serviceId}",method = RequestMethod.PUT)
   public String updateApiRoute(@PathVariable String serviceId,@RequestParam("path")String pathreg){
       WriteResult result = mongoTemplate.updateFirst(Query.query(Criteria.where("serviceId").is(serviceId)), Update.update("pathReg",pathreg),RouteConfig.class);
+      if(result.getN() == 1){
+        dynamicConfigration.reloadRouteRule(serviceId);
+      }
       return "affect row : "+result.getN();
   }
 
   @RequestMapping(value = "/{serviceId}",method = RequestMethod.DELETE)
   public String delApiRoute(@PathVariable String serviceId){
     routeConfigRepository.deleteByServiceId(serviceId);
-    return routeConfigRepository.findByServiceId(serviceId) == null ? "删除成功":"删除失败";
+    if(routeConfigRepository.findByServiceId(serviceId) == null){
+      return "删除失败";
+    }else {
+      dynamicConfigration.reloadRouteRule(serviceId);
+      return "删除成功";
+    }
   }
 
 
