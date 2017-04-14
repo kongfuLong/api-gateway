@@ -1,4 +1,4 @@
-package com.xkeshi.apigateway.hystrix;
+package com.xkeshi.apigateway.hystrixfallback;
 
 import java.io.IOException;
 import java.io.InputStream;

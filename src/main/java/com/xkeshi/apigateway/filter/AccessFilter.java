@@ -4,6 +4,9 @@ import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.hystrix.strategy.properties.HystrixPropertiesFactory;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import com.xkeshi.apigateway.core.DynamicConfigrationImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,6 +14,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AccessFilter extends ZuulFilter {
+
+  private final Logger logger = LoggerFactory.getLogger(AccessFilter.class);
 
   @Override
   public String filterType() {
@@ -32,8 +37,7 @@ public class AccessFilter extends ZuulFilter {
 
   @Override
   public Object run() {
-    System.out.println("请求发起之前");
-
+    logger.info("请求发起之前 过滤器");
 
     return null;
   }

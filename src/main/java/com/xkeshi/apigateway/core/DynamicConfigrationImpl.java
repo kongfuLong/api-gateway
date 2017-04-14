@@ -6,6 +6,8 @@ import com.netflix.hystrix.HystrixCommandProperties.Setter;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 import com.netflix.hystrix.strategy.properties.HystrixPropertiesFactory;
 import com.netflix.hystrix.strategy.properties.HystrixPropertiesStrategy;
+import com.xkeshi.apigateway.mongo.HystrixConfig;
+import com.xkeshi.apigateway.mongo.HystrixConfigRepository;
 import com.xkeshi.apigateway.mongo.RouteConfig;
 import com.xkeshi.apigateway.mongo.RouteConfigRepository;
 import com.xkeshi.core.utils.CollectionUtils;
@@ -14,6 +16,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties.ZuulRoute;
@@ -24,11 +28,17 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DynamicConfigrationImpl extends HystrixPropertiesStrategy implements DynamicConfigration {
+
+  private final Logger logger = LoggerFactory.getLogger(DynamicConfigrationImpl.class);
+
   @Autowired
   private ZuulProperties zuulProperties;
 
   @Autowired
   private RouteConfigRepository routeConfigRepository;
+
+  @Autowired
+  private HystrixConfigRepository hystrixConfigRepository;
 
 
   @PostConstruct
@@ -48,11 +58,12 @@ public class DynamicConfigrationImpl extends HystrixPropertiesStrategy implement
   @Override
   public HystrixCommandProperties getCommandProperties(HystrixCommandKey commandKey,
       Setter builder) {
+    HystrixConfig config = hystrixConfigRepository.findByServiceId(commandKey.name());
     //自定义hystrix配置
-    if(HystrixCommandKey.Factory.asKey("client-rcl2").equals(commandKey)){
-      builder.withExecutionIsolationSemaphoreMaxConcurrentRequests(5);
-      builder.withExecutionTimeoutInMilliseconds(3000);
-      System.out.println("配置.........");
+    if(config != null){
+      builder.withExecutionIsolationSemaphoreMaxConcurrentRequests(config.getExecutionIsolationSemaphoreMaxConcurrentRequests());
+      builder.withExecutionTimeoutInMilliseconds(config.getExecutionTimeoutInMilliseconds());
+      logger.info("配置hystrix::"+commandKey.name());
     }
 
     return super.getCommandProperties(commandKey, builder);
